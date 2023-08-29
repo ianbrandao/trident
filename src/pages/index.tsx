@@ -7,7 +7,7 @@ import styles from '@/styles/Home.module.css';
 const inter = Inter({ subsets: ['latin'] });
 
 const imageSources = [
-  '/led_destravado.png',
+  '/led_contador.png',
 ];
 
 export default function Home() {
@@ -60,7 +60,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        {showImageContainer ? (
+        {/* {showImageContainer ? (
           <div className={styles.center}>
             <Image
               className={styles.logo}
@@ -75,7 +75,17 @@ export default function Home() {
           <div className={styles.counterBox}>
             <div className={styles.counterNumber}>{counter}</div>
           </div>
-        )}
+        )} */}
+        <div className={styles.center}>
+            <Image
+              className={styles.logo}
+              src={imageSources[currentIndex]}
+              alt="Contador"
+              width={336}
+              height={168}
+              priority
+            />
+          </div>
       </main>
     </>
   );
