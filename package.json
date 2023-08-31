@@ -14,6 +14,7 @@
     "@types/react-dom": "18.2.7",
     "axios": "^1.5.0",
     "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
     "eslint": "8.48.0",
     "eslint-config-next": "13.4.19",
     "event-source-polyfill": "^1.0.31",

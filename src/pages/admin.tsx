@@ -3,7 +3,6 @@ import Head from 'next/head';
 import Image from 'next/image';
 import styles from '@/styles/Home.module.css';
 import axios from 'axios';
-import { randomInt } from 'crypto';
 
 export default function AdminPage() {
   const [publicationCount, setPublicationCount] = useState(0);
@@ -22,7 +21,7 @@ export default function AdminPage() {
     const newCount = parseInt(countInputRef.current?.value || '0', 10);
 
     try {
-      const response = await axios.get(`http://127.0.0.1:3001/trigger-button?text=${newCount}`);
+      const response = await axios.get(`https://trident-server.vercel.app/trigger-button?text=${newCount}`);
       handlePublicationCountUpdate(newCount);
 
       // Dispatch the adminUpdate event with the new count as detail
@@ -40,7 +39,7 @@ export default function AdminPage() {
     try {
       const numberOfRequests = 1; // Number of requests you want to send
       const requests = Array.from({ length: numberOfRequests }, () =>
-        axios.get('http://127.0.0.1:3001/trigger-button?text=pause')
+        axios.get(`https://trident-server.vercel.app/trigger-button?text=pause`)
       );
   
       const responses = await Promise.all(requests);
