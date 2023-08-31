@@ -53,49 +53,49 @@ export default function Home() {
     setCounter(newCounter);
   };
 
-  useEffect(() => {
-    const eventSource = new EventSource(
-      `https://trident-server.vercel.app/admin-updates`
-    );
+  // useEffect(() => {
+  //   const eventSource = new EventSource(
+  //     `https://trident-server.vercel.app/admin-updates`
+  //   );
 
-    eventSource.onmessage = (event: { data: string }) => {
-      console.log(event);
-      // Handle the incoming event data
-      // For example, you can extract the newCount from the event data
-      const newCount = parseInt(event.data);
+  //   eventSource.onmessage = (event: { data: string }) => {
+  //     console.log(event);
+  //     // Handle the incoming event data
+  //     // For example, you can extract the newCount from the event data
+  //     const newCount = parseInt(event.data);
 
-      // Update the counter state with the newCount
-      setCounter(newCount);
-    };
+  //     // Update the counter state with the newCount
+  //     setCounter(newCount);
+  //   };
 
-    return () => {
-      eventSource.close();
-    };
-  }, []);
+  //   return () => {
+  //     eventSource.close();
+  //   };
+  // }, []);
 
-  useEffect(() => {
-    const eventPause = new EventSource(
-      `https://trident-server.vercel.app/pause`
-    );
+  // useEffect(() => {
+  //   const eventPause = new EventSource(
+  //     `https://trident-server.vercel.app/pause`
+  //   );
 
-    eventPause.onmessage = (event: { data: string }) => {
-      console.log(event);
-      setShowImageContainer(true);
-      setCurrentIndex(1); // Set the image index to the paused image index
+  //   eventPause.onmessage = (event: { data: string }) => {
+  //     console.log(event);
+  //     setShowImageContainer(true);
+  //     setCurrentIndex(1); // Set the image index to the paused image index
 
-      if (countdownInterval) {
-        clearInterval(countdownInterval);
-      }
+  //     if (countdownInterval) {
+  //       clearInterval(countdownInterval);
+  //     }
 
-      if (imageInterval) {
-        clearInterval(imageInterval);
-      }
-    };
+  //     if (imageInterval) {
+  //       clearInterval(imageInterval);
+  //     }
+  //   };
 
-    return () => {
-      eventPause.close();
-    };
-  }, [countdownInterval, imageInterval]);
+  //   return () => {
+  //     eventPause.close();
+  //   };
+  // }, [countdownInterval, imageInterval]);
 
   useEffect(() => {
     const handleAdminUpdate: EventListener = (event: Event) => {
