@@ -9,10 +9,15 @@ export default function Home() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [counter, setCounter] = useState(0);
   const [showImageContainer, setShowImageContainer] = useState(false);
-  const [countdownInterval, setCountdownInterval] = useState<NodeJS.Timeout | null>(null);
+  const [countdownInterval, setCountdownInterval] =
+    useState<NodeJS.Timeout | null>(null);
 
   const initialCounterValue = 50;
-  const [fixedCounterValue, setFixedCounterValue] = useState(initialCounterValue);
+  const [fixedCounterValue, setFixedCounterValue] =
+    useState(initialCounterValue);
+  const [imageInterval, setImageInterval] = useState<NodeJS.Timeout | null>(
+    null
+  );
 
   useEffect(() => {
     if (fixedCounterValue <= 0) {
@@ -68,29 +73,29 @@ export default function Home() {
     };
   }, []);
 
-  // useEffect(() => {
-  //   const eventPause = new EventSource(
-  //     `https://trident-server.vercel.app/pause`
-  //   );
+  useEffect(() => {
+    const eventPause = new EventSource(
+      `https://trident-server.vercel.app/pause`
+    );
 
-  //   eventPause.onmessage = (event: { data: string }) => {
-  //     console.log(event);
-  //     setShowImageContainer(true);
-  //     setCurrentIndex(1); // Set the image index to the paused image index
+    eventPause.onmessage = (event: { data: string }) => {
+      console.log(event);
+      setShowImageContainer(true);
+      setCurrentIndex(1); // Set the image index to the paused image index
 
-  //     if (countdownInterval) {
-  //       clearInterval(countdownInterval);
-  //     }
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+      }
 
-  //     if (imageInterval) {
-  //       clearInterval(imageInterval);
-  //     }
-  //   };
+      if (imageInterval) {
+        clearInterval(imageInterval);
+      }
+    };
 
-  //   return () => {
-  //     eventPause.close();
-  //   };
-  // }, [countdownInterval, imageInterval]);
+    return () => {
+      eventPause.close();
+    };
+  }, [countdownInterval, imageInterval]);
 
   useEffect(() => {
     const handleAdminUpdate: EventListener = (event: Event) => {
@@ -130,10 +135,14 @@ export default function Home() {
             <div className={styles.counterContainer}>
               {/* Display each digit in a separate box */}
               <div className={styles.counterDigit}>
-                {fixedCounterValue >= 100 ? Math.floor(fixedCounterValue / 100) : 0}
+                {fixedCounterValue >= 100
+                  ? Math.floor(fixedCounterValue / 100)
+                  : 0}
               </div>
               <div className={styles.counterDigit}>
-                {fixedCounterValue >= 10 ? Math.floor((fixedCounterValue % 100) / 10) : 0}
+                {fixedCounterValue >= 10
+                  ? Math.floor((fixedCounterValue % 100) / 10)
+                  : 0}
               </div>
               <div className={styles.counterDigit}>
                 {fixedCounterValue % 10}
