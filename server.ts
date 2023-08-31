@@ -13,52 +13,57 @@ app.use(express.json());
 app.use(cors(corsOptions));
 
 const clients: any[] = []; // Store connected clients
-const pause: any[] = [];
+const pauseClients: any[] = []; // Store connected clients for pause events
 
-// Create a single instance of EventSourcePolyfill
-const eventSource = new EventSourcePolyfill('http://127.0.0.1:3001/admin-updates');
-const eventPause = new EventSourcePolyfill('http://127.0.0.1:3001/pause');
+// Create a single instance of EventSourcePolyfill for updates
+const eventSourceUpdates = new EventSourcePolyfill('http://127.0.0.1:3001/admin-updates');
 
-app.get('/admin-updates', (req: any, res: any) => {
+// Route for handling updates
+app.get('/admin-updates', (req: { on: (arg0: string, arg1: () => void) => void; }, res: { setHeader: (arg0: string, arg1: string) => void; }) => {
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
 
   clients.push(res);
 
   req.on('close', () => {
-    clients.splice(clients.indexOf(res), 1);
-    console.log('SSE connection closed - Counter');
+    const index = clients.indexOf(res);
+    if (index !== -1) {
+      clients.splice(index, 1);
+      console.log('SSE connection closed - Updates');
+    }
   });
 });
 
-// Route to trigger updates to connected clients
-app.get('/trigger', (req: any, res: any) => {
-  const newCount = req.query.count || 0; // Use the provided count value or default to 0
-  clients.forEach(client =>
-    client.write(`data: ${newCount}\n\n`) // Send the new count in the event data
-  );
-});
-
-app.get('/pause', (req: any, res: any) => {
+// Route for handling pause events
+app.get('/pause', (req: { on: (arg0: string, arg1: () => void) => void; }, res: { setHeader: (arg0: string, arg1: string) => void; }) => {
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
 
-  pause.push(res);
+  pauseClients.push(res);
 
   req.on('close', () => {
-    pause.splice(pause.indexOf(res), 1);
-    console.log('SSE connection closed - Pause');
+    const index = pauseClients.indexOf(res);
+    if (index !== -1) {
+      pauseClients.splice(index, 1);
+      console.log('SSE connection closed - Pause');
+    }
   });
 });
 
 // Route to trigger updates to connected clients
-app.get('/trigger-button', (req: any, res: any) => {
-  const text = req.query.text || 0; // Use the provided count value or default to 0
-  pause.forEach(p =>
-    p.write(`data: ${text}\n\n`) // Send the new count in the event data
-  );
-});
+app.get('/trigger-button', (req: { query: { text: any; }; }, res: { send: (arg0: string) => void; }) => {
+  const text = req.query.text; // Use the provided text value or default to 0
+  console.log('Triggering event:', text);
+  
+  // Handle different event types based on text value
+  if (text === 'pause') {
+    pauseClients.forEach(p => p.write(`data: ${text}\n\n`));
+  } else {
+    clients.forEach(client => client.write(`data: ${text}\n\n`));
+  }
 
+  res.send('Event triggered successfully');
+});
 
 server.listen(3001, () => {
   console.log('Server listening on port 3001');

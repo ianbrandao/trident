@@ -22,7 +22,7 @@ export default function AdminPage() {
     const newCount = parseInt(countInputRef.current?.value || '0', 10);
 
     try {
-      const response = await axios.get(`http://127.0.0.1:3001/trigger?count=${newCount}`);
+      const response = await axios.get(`http://127.0.0.1:3001/trigger-button?text=${newCount}`);
       handlePublicationCountUpdate(newCount);
 
       // Dispatch the adminUpdate event with the new count as detail
@@ -35,17 +35,28 @@ export default function AdminPage() {
 
   const pause = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
+    console.log('oi');
+  
     try {
-      const response = await axios.get(`http://127.0.0.1:3001/trigger-button?text=pause`);
-
-      // Dispatch the adminUpdate event with the new count as detail
-      const customEvent = new CustomEvent('pause', { detail: response });
-      window.dispatchEvent(customEvent);
+      const numberOfRequests = 1; // Number of requests you want to send
+      const requests = Array.from({ length: numberOfRequests }, () =>
+        axios.get('http://127.0.0.1:3001/trigger-button?text=pause')
+      );
+  
+      const responses = await Promise.all(requests);
+  
+      responses.forEach(response => {
+        // Dispatch the adminUpdate event with the response data as detail
+        const customEvent = new CustomEvent('pause', { detail: response.data });
+        window.dispatchEvent(customEvent);
+      });
+  
+      console.log('Responses:', responses.map(response => response.data));
+      return responses;
     } catch (error) {
       console.error('Error triggering update:', error);
     }
   };
-  
 
   return (
     <>

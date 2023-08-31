@@ -105,7 +105,7 @@ export default function Home() {
     return () => {
       eventPause.close();
     };
-  }, []);
+  }, [countdownInterval, imageInterval]);
 
   useEffect(() => {
     const handleAdminUpdate: EventListener = (event: Event) => {
