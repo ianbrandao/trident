@@ -68,7 +68,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    const eventSource = new EventSource(`https://trident-beryl.vercel.app/admin-updates`);
+    const eventSource = new EventSource(`https://trident-server.vercel.app/admin-updates`);
 
     eventSource.onmessage = (event: { data: string }) => {
       console.log(event);
@@ -86,7 +86,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const eventPause = new EventSource(`https://trident-beryl.vercel.app/pause`);
+    const eventPause = new EventSource(`https://trident-server.vercel.app/pause`);
 
     eventPause.onmessage = (event: { data: string }) => {
       console.log(event);
