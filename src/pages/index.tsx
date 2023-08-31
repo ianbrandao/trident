@@ -3,31 +3,31 @@ import Head from "next/head";
 import Image from "next/image";
 import styles from "@/styles/Home.module.css";
 
-let imageSources = ["/led_destravado.png", "/led_paused.png"];
+let imageSources = ["/led_paused.png", "/led_destravado.png"];
 
 export default function Home() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [counter, setCounter] = useState(0);
   const [showImageContainer, setShowImageContainer] = useState(false);
-  const [countdownInterval, setCountdownInterval] =
-    useState<NodeJS.Timeout | null>(null);
-  const [imageInterval, setImageInterval] = useState<NodeJS.Timeout | null>(
-    null
-  );
+  const [countdownInterval, setCountdownInterval] = useState<NodeJS.Timeout | null>(null);
+
+  const initialCounterValue = 50;
+  const [fixedCounterValue, setFixedCounterValue] = useState(initialCounterValue);
 
   useEffect(() => {
-    if (counter == 0) {
+    if (fixedCounterValue <= 0) {
       setShowImageContainer(true);
-      setCurrentIndex(0); // Start with the first image when the image container appears
-    } else {
-      setShowImageContainer(false);
+      setCurrentIndex(1); // Set the image index to the paused image index
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+      }
     }
-  }, [counter]);
+  }, [fixedCounterValue, countdownInterval]);
 
   useEffect(() => {
-    if (counter > 0) {
+    if (fixedCounterValue > 0) {
       const interval = setInterval(() => {
-        setCounter((prevCounter) => prevCounter - 1);
+        setFixedCounterValue((prevCounter) => prevCounter - 1);
       }, 1000);
 
       setCountdownInterval(interval);
@@ -36,10 +36,12 @@ export default function Home() {
         clearInterval(interval);
       };
     } else {
-      setCounter(0);
-      setCountdownInterval(null);
+      setFixedCounterValue(initialCounterValue);
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+      }
     }
-  }, [counter]);
+  }, []);
 
   // Function to receive the counter value from an event
   const receiveCounter = (newCounter: SetStateAction<number>) => {
@@ -66,29 +68,29 @@ export default function Home() {
     };
   }, []);
 
-  useEffect(() => {
-    const eventPause = new EventSource(
-      `https://trident-server.vercel.app/pause`
-    );
+  // useEffect(() => {
+  //   const eventPause = new EventSource(
+  //     `https://trident-server.vercel.app/pause`
+  //   );
 
-    eventPause.onmessage = (event: { data: string }) => {
-      console.log(event);
-      setShowImageContainer(true);
-      setCurrentIndex(1); // Set the image index to the paused image index
+  //   eventPause.onmessage = (event: { data: string }) => {
+  //     console.log(event);
+  //     setShowImageContainer(true);
+  //     setCurrentIndex(1); // Set the image index to the paused image index
 
-      if (countdownInterval) {
-        clearInterval(countdownInterval);
-      }
+  //     if (countdownInterval) {
+  //       clearInterval(countdownInterval);
+  //     }
 
-      if (imageInterval) {
-        clearInterval(imageInterval);
-      }
-    };
+  //     if (imageInterval) {
+  //       clearInterval(imageInterval);
+  //     }
+  //   };
 
-    return () => {
-      eventPause.close();
-    };
-  }, [countdownInterval, imageInterval]);
+  //   return () => {
+  //     eventPause.close();
+  //   };
+  // }, [countdownInterval, imageInterval]);
 
   useEffect(() => {
     const handleAdminUpdate: EventListener = (event: Event) => {
@@ -128,13 +130,13 @@ export default function Home() {
             <div className={styles.counterContainer}>
               {/* Display each digit in a separate box */}
               <div className={styles.counterDigit}>
-                {counter >= 100 ? Math.floor(counter / 100) : 0}
+                {fixedCounterValue >= 100 ? Math.floor(fixedCounterValue / 100) : 0}
               </div>
               <div className={styles.counterDigit}>
-                {counter >= 10 ? Math.floor((counter % 100) / 10) : 0}
+                {fixedCounterValue >= 10 ? Math.floor((fixedCounterValue % 100) / 10) : 0}
               </div>
               <div className={styles.counterDigit}>
-                {counter % 10}
+                {fixedCounterValue % 10}
               </div>
             </div>
           </div>
