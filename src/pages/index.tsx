@@ -16,7 +16,7 @@ export default function Home() {
   );
 
   useEffect(() => {
-    if (counter) {
+    if (counter == 0) {
       setShowImageContainer(false);
     } else {
       setShowImageContainer(true);
@@ -41,34 +41,15 @@ export default function Home() {
     }
   }, [counter]);
 
-  // useEffect(() => {
-  //   let imageInterval: NodeJS.Timeout | null = null;
-
-  //   if (showImageContainer) {
-  //     setCurrentIndex(0); // Reset to the first image when the container appears
-  //     imageInterval = setInterval(() => {
-  //       setCurrentIndex((prevIndex) => (prevIndex + 1) % imageSources.length);
-  //     }, 5000);
-
-  //     setImageInterval(imageInterval);
-  //   } else {
-  //     setImageInterval(null);
-  //   }
-
-  //   return () => {
-  //     if (imageInterval !== null) {
-  //       clearInterval(imageInterval);
-  //     }
-  //   };
-  // }, [showImageContainer]);
-
   // Function to receive the counter value from an event
   const receiveCounter = (newCounter: SetStateAction<number>) => {
     setCounter(newCounter);
   };
 
   useEffect(() => {
-    const eventSource = new EventSource(`https://trident-server.vercel.app/admin-updates`);
+    const eventSource = new EventSource(
+      `https://trident-server.vercel.app/admin-updates`
+    );
 
     eventSource.onmessage = (event: { data: string }) => {
       console.log(event);
@@ -86,7 +67,9 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const eventPause = new EventSource(`https://trident-server.vercel.app/pause`);
+    const eventPause = new EventSource(
+      `https://trident-server.vercel.app/pause`
+    );
 
     eventPause.onmessage = (event: { data: string }) => {
       console.log(event);
@@ -142,7 +125,18 @@ export default function Home() {
           </div>
         ) : (
           <div className={styles.counterBox}>
-            <p className={styles.counterNumber}>{counter}</p>
+            <div className={styles.counterContainer}>
+              {/* Display each digit in a separate box */}
+              <div className={styles.counterDigit}>
+                {counter >= 100 ? Math.floor(counter / 100) : 0}
+              </div>
+              <div className={styles.counterDigit}>
+                {counter >= 10 ? Math.floor((counter % 100) / 10) : 0}
+              </div>
+              <div className={styles.counterDigit}>
+                {counter % 10}
+              </div>
+            </div>
           </div>
         )}
       </main>
