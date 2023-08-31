@@ -7,8 +7,8 @@ module.exports = {
   async rewrites() {
     return [
       {
-        source: '/src/index.tsx*',
-        destination: 'https://trident-server.vercel.app/admin-updates*',
+        source: '/src/index.tsx',
+        destination: 'https://trident-server.vercel.app/admin-updates',
       },
     ]
   },

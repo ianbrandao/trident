@@ -17,10 +17,10 @@ export default function Home() {
 
   useEffect(() => {
     if (counter == 0) {
-      setShowImageContainer(false);
-    } else {
       setShowImageContainer(true);
       setCurrentIndex(0); // Start with the first image when the image container appears
+    } else {
+      setShowImageContainer(false);
     }
   }, [counter]);
 
