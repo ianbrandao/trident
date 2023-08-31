@@ -1,55 +1,124 @@
-import { useEffect, useState } from 'react';
-import Head from 'next/head';
-import Image from 'next/image';
-import { Inter } from 'next/font/google';
-import styles from '@/styles/Home.module.css';
+import { SetStateAction, useEffect, useState } from "react";
+import Head from "next/head";
+import Image from "next/image";
+import styles from "@/styles/Home.module.css";
 
-const inter = Inter({ subsets: ['latin'] });
-
-const imageSources = [
-  '/led_contador.png',
-];
+let imageSources = ["/led_destravado.png", "/led_paused.png"];
 
 export default function Home() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [counter, setCounter] = useState(0);
   const [showImageContainer, setShowImageContainer] = useState(false);
+  const [countdownInterval, setCountdownInterval] =
+    useState<NodeJS.Timeout | null>(null);
+  const [imageInterval, setImageInterval] = useState<NodeJS.Timeout | null>(
+    null
+  );
 
   useEffect(() => {
-    if (counter >= 5) {
-      setShowImageContainer(true);
-      setCurrentIndex(0); // Start with the first image when image container appears
-    } else {
+    if (counter) {
       setShowImageContainer(false);
+    } else {
+      setShowImageContainer(true);
+      setCurrentIndex(0); // Start with the first image when the image container appears
     }
   }, [counter]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCounter((prevCounter) => prevCounter + 1);
-    }, 1000);
+    if (counter > 0) {
+      const interval = setInterval(() => {
+        setCounter((prevCounter) => prevCounter - 1);
+      }, 1000);
+
+      setCountdownInterval(interval);
+
+      return () => {
+        clearInterval(interval);
+      };
+    } else {
+      setCounter(0);
+      setCountdownInterval(null);
+    }
+  }, [counter]);
+
+  // useEffect(() => {
+  //   let imageInterval: NodeJS.Timeout | null = null;
+
+  //   if (showImageContainer) {
+  //     setCurrentIndex(0); // Reset to the first image when the container appears
+  //     imageInterval = setInterval(() => {
+  //       setCurrentIndex((prevIndex) => (prevIndex + 1) % imageSources.length);
+  //     }, 5000);
+
+  //     setImageInterval(imageInterval);
+  //   } else {
+  //     setImageInterval(null);
+  //   }
+
+  //   return () => {
+  //     if (imageInterval !== null) {
+  //       clearInterval(imageInterval);
+  //     }
+  //   };
+  // }, [showImageContainer]);
+
+  // Function to receive the counter value from an event
+  const receiveCounter = (newCounter: SetStateAction<number>) => {
+    setCounter(newCounter);
+  };
+
+  useEffect(() => {
+    const eventSource = new EventSource("http://127.0.0.1:3001/admin-updates");
+
+    eventSource.onmessage = (event: { data: string }) => {
+      console.log(event);
+      // Handle the incoming event data
+      // For example, you can extract the newCount from the event data
+      const newCount = parseInt(event.data);
+
+      // Update the counter state with the newCount
+      setCounter(newCount);
+    };
 
     return () => {
-      clearInterval(interval);
+      eventSource.close();
     };
   }, []);
 
   useEffect(() => {
-    let imageInterval: NodeJS.Timeout | null = null; // Explicitly specify the type
+    const eventPause = new EventSource("http://127.0.0.1:3001/pause");
 
-    if (showImageContainer) {
-      setCurrentIndex(0); // Reset to the first image when the container appears
-      imageInterval = setInterval(() => {
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % imageSources.length);
-      }, 5000);
-    }
+    eventPause.onmessage = (event: { data: string }) => {
+      console.log(event);
+      setShowImageContainer(true);
+      setCurrentIndex(1); // Set the image index to the paused image index
 
-    return () => {
-      if (imageInterval !== null) {
-        clearInterval(imageInterval); // Clear the interval when the component unmounts or when showImageContainer changes
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+      }
+
+      if (imageInterval) {
+        clearInterval(imageInterval);
       }
     };
-  }, [showImageContainer]);
+
+    return () => {
+      eventPause.close();
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleAdminUpdate: EventListener = (event: Event) => {
+      const newCount = (event as CustomEvent<number>).detail;
+      setCounter(newCount);
+    };
+
+    window.addEventListener("adminUpdate", handleAdminUpdate);
+
+    return () => {
+      window.removeEventListener("adminUpdate", handleAdminUpdate);
+    };
+  }, []);
 
   return (
     <>
@@ -60,12 +129,12 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        {/* {showImageContainer ? (
+        {showImageContainer ? (
           <div className={styles.center}>
             <Image
               className={styles.logo}
-              src={imageSources[currentIndex]}
-              alt="Contador"
+              src={imageSources[currentIndex]} // Use the paused image source
+              alt="Paused"
               width={336}
               height={168}
               priority
@@ -73,19 +142,9 @@ export default function Home() {
           </div>
         ) : (
           <div className={styles.counterBox}>
-            <div className={styles.counterNumber}>{counter}</div>
+            <p className={styles.counterNumber}>{counter}</p>
           </div>
-        )} */}
-        <div className={styles.center}>
-            <Image
-              className={styles.logo}
-              src={imageSources[currentIndex]}
-              alt="Contador"
-              width={336}
-              height={168}
-              priority
-            />
-          </div>
+        )}
       </main>
     </>
   );
