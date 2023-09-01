@@ -22,7 +22,7 @@ export default function AdminPage() {
   
     try {
       // Make a POST request to trigger the update
-      const response = await axios.post('https://https://trident-server.vercel.app/trigger-button', { text: newCount });
+      const response = await axios.post('https://trident-server.vercel.app/trigger-button', { text: newCount });
   
     } catch (error) {
       console.error('Error:', error);
