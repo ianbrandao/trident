@@ -19,16 +19,13 @@ export default function AdminPage() {
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const newCount = parseInt(countInputRef.current?.value || '0', 10);
-
+  
     try {
-      const response = await axios.get(`https://trident-server.vercel.app/trigger-button?text=${newCount}`);
-      handlePublicationCountUpdate(newCount);
-
-      // Dispatch the adminUpdate event with the new count as detail
-      const event = new CustomEvent('adminUpdate', { detail: newCount });
-      window.dispatchEvent(event);
+      // Make a POST request to trigger the update
+      const response = await axios.post('https://https://trident-server.vercel.app/trigger-button', { text: newCount });
+  
     } catch (error) {
-      console.error('Error triggering update:', error);
+      console.error('Error:', error);
     }
   };
 
